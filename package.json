@@ -1,0 +1,18 @@
+{
+  "name": "amazon-bot",
+  "version": "1.0.0",
+  "description": "Amazon Selenium App to purchase stuff",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chromedriver": "^90.0.1",
+    "dotenv": "^10.0.0",
+    "selenium-webdriver": "*",
+    "yargs": "^17.0.1"
+  }
+}
