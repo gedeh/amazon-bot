@@ -10,6 +10,9 @@ export default class AmazonMainPage {
     async openSignInPage() {
         await this.driver.get(this.config.site)
         await this.driver.findElement(By.css('header#navbar-main a[data-nav-role="signin"]')).click()
+        await this.driver.wait(
+            () => this.driver.executeScript('return document.readyState').then(
+                async state => state === 'complete'), this.config.timeout)
         await this.driver.wait(until.elementLocated(By.css('form[name="signIn"] input[type="email"]#ap_email')), this.config.timeout)
         return new AmazonSignInPage(this.driver, this.config)
     }
