@@ -45,3 +45,14 @@ When all above criteria are met, buy action will be performed automatically usin
 
 - Run `npm install`
 - Run the Selenium code using `npm run start`
+
+You also can configure trusted merchant name by modifying [config](./src/config.mjs) file, for example:
+
+```js
+    trustedMerchants: [
+        'Amazon',
+        'Other Merchant',
+        'Another Merchant',
+        'Test '
+    ]
+```
