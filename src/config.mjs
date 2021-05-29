@@ -20,6 +20,10 @@ const config = {
         'B08LTKLG5K', // not qualified to buy
         'B078X22YBR', // sold by Amazon
         'B08N5TG1H3', // sold by Amazon
+    ],
+    trustedMerchants: [
+        'Amazon',
+        'TechPoint1111'
     ]
 }
 
