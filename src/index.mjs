@@ -14,22 +14,24 @@ const shuffle = array => {
 }
 
 const shouldBuy = opts => {
-  const { price, merchant, isOutOfStock, isQualifiedToBuy } = opts
+  const { price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable } = opts
   if (isOutOfStock) return { decision: false, message: 'its out of stock' }
-  if (price > config.maxPrice) return { decision: false, message: 'its too expensive' }
+  if (!isQualifiedToBuy) return { decision: false, message: 'account is not qualified to buy' }
+  if (!isDeliverable) return { decision: false, message: 'its not deliverable to main address' }
+
   if (!config.trustedMerchants.includes(merchant)) return { decision: false, message: 'its not sold by trusted merchant(s)' }
-  return { decision: isQualifiedToBuy, message: isQualifiedToBuy ? '' : 'account is qualified to buy' }
+  if (price > config.maxPrice) return { decision: false, message: 'its too expensive' }
+
+  return { decision: true }
 }
 
 const describe = opts => {
-  const { amazonId, title, price, merchant, isOutOfStock, isQualifiedToBuy } = opts
-  if (!isOutOfStock) {
-    if (isQualifiedToBuy) {
-      return `Product ${amazonId} - ${title}: Price ${config.currency}${price} is sold by ${merchant}`
-    }
-    else return `Product ${amazonId} - ${title}: Account is not qualified to buy`
-  }
-  else return `Product ${amazonId} - ${title}: Is out of stock`
+  const { amazonId, title, price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable } = opts
+  if (isOutOfStock) return `Product ${amazonId} - ${title}: Is out of stock`
+  if (!isQualifiedToBuy) return `Product ${amazonId} - ${title}: Account is not qualified to buy`
+  if (!isDeliverable) return `Product ${amazonId} - ${title}: Cannot be shipped to selected delivery location`
+
+  return `Product ${amazonId} - ${title}: Price ${config.currency}${price} is sold by ${merchant}`
 }
 
 (async function example() {
@@ -55,7 +57,8 @@ const describe = opts => {
       const merchant = await productPage.merchantName()
       const isOutOfStock = await productPage.isOutOfStock()
       const isQualifiedToBuy = await productPage.isQualifiedToBuy()
-      const opts = { amazonId, title, price, merchant, isOutOfStock, isQualifiedToBuy }
+      const isDeliverable = await productPage.isDeliverable()
+      const opts = { amazonId, title, price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable }
 
       logger.info(describe(opts))
 

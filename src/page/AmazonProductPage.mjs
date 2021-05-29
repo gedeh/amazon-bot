@@ -49,6 +49,16 @@ export default class AmazonProductPage {
         }
     }
 
+    async isDeliverable() {
+        try {
+            await this.driver.findElement(By.css('div#deliveryBlockMessage span.a-color-error'))
+            return false
+        }
+        catch (e) {
+            return true
+        }
+    }
+
     async isByAmazon() {
         try {
             const merchantName = await this.driver.findElement(By.css('div#merchant-info')).getText()

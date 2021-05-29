@@ -3,8 +3,8 @@ dotenv.config({ debug: true })
 
 const env = process.env
 
-const parseTrustedMerchants = () => {
-    const merchants = env.AMAZON_TRUSTED_MERCHANTS ?? 'Amazon'
+const parseCommaSeparatedValues = (values, defaults = '') => {
+    const merchants = values ?? defaults
     return merchants.split(',').map(e => e.trim())
 }
 
@@ -24,9 +24,10 @@ const config = {
         'B092CYHPDJ', // seller not by Amazon
         'B08LTKLG5K', // not qualified to buy
         'B078X22YBR', // sold by Amazon
-        'B08N5TG1H3', // sold by Amazon
+        'B081FW6TPQ', // sold by Amazon, too expensive
+        'B01MAZ357B', // not deliverable
     ],
-    trustedMerchants: parseTrustedMerchants()
+    trustedMerchants: parseCommaSeparatedValues(env.AMAZON_TRUSTED_MERCHANTS, 'Amazon')
 }
 
 export default config
