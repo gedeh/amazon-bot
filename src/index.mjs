@@ -50,7 +50,11 @@ const describe = opts => {
     for (const amazonId of randomizedIds) {
       logger.info(`Opening page of product ${amazonId}`)
       const productPage = new AmazonProductPage(driver, config, amazonId)
-      await productPage.open()
+      const available = await productPage.open()
+      if (!available) {
+        logger.warn(`Product ${amazonId} is not available`)
+        continue
+      }
 
       const title = await productPage.title()
       const price = await productPage.price()

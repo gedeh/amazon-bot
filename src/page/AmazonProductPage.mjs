@@ -17,12 +17,18 @@ export default class AmazonProductPage {
     }
 
     async open() {
-        await this.driver.get(`${this.config.site}/-/en/dp/${this.amazonId}`)
-        await this.driver.wait(
-            () => this.driver.executeScript('return document.readyState').then(
-                async state => state === 'complete'), this.config.timeout)
-        await this.driver.wait(until.elementsLocated(By.css('div[data-feature-name="desktop_buybox"]')), this.config.timeout)
-        await this.driver.wait(until.elementsLocated(By.css('span#productTitle')), this.config.timeout)
+        try {
+            await this.driver.get(`${this.config.site}/-/en/dp/${this.amazonId}`)
+            await this.driver.wait(
+                () => this.driver.executeScript('return document.readyState').then(
+                    async state => state === 'complete'), this.config.timeout)
+            await this.driver.wait(until.elementsLocated(By.css('div[data-feature-name="desktop_buybox"]')), this.config.timeout)
+            await this.driver.wait(until.elementsLocated(By.css('span#productTitle')), this.config.timeout)
+            return true
+        }
+        catch {
+            return false
+        }
     }
 
     async title() {
