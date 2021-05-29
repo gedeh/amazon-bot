@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-dotenv.config({ debug: true, path: '../.env' })
+dotenv.config({ debug: true })
 
 const env = process.env
 
@@ -9,15 +9,17 @@ const config = {
     timeout: env.TIMEOUT ?? 10000,
     maxPrice: env.MAXIMUM_PRICE ?? 2000,
 
-    site: env.AMAZON_SITE ?? 'https://www.amazon.de/',
+    site: env.AMAZON_SITE ?? 'https://www.amazon.co.uk',
+    locale: env.AMAZON_LOCALE ?? 'en-GB',
+    currency: env.AMAZON_CURRENCY ?? '£',
     username: env.AMAZON_USERNAME,
     password: env.AMAZON_PASSWORD,
     amazonIds: [
-        'B08HH1BMQQ',
-        'B08HR55YB5',
-        'B08LTKLG5K',
-        'B08HM4V2DH',
-        'B092CYHPDJ'
+        'B08HM4V2DH', // out of stock
+        'B092CYHPDJ', // seller not by Amazon
+        'B08LTKLG5K', // not qualified to buy
+        'B078X22YBR', // sold by Amazon
+        'B08N5TG1H3', // sold by Amazon
     ]
 }
 
