@@ -3,6 +3,11 @@ dotenv.config({ debug: true })
 
 const env = process.env
 
+const parseTrustedMerchants = () => {
+    const merchants = env.AMAZON_TRUSTED_MERCHANTS ?? 'Amazon'
+    return merchants.split(',').map(e => e.trim())
+}
+
 if (!env.AMAZON_USERNAME || !env.AMAZON_PASSWORD) throw new Error('Configure environment variable AMAZON_USERNAME and AMAZON_PASSWORD')
 
 const config = {
@@ -21,10 +26,7 @@ const config = {
         'B078X22YBR', // sold by Amazon
         'B08N5TG1H3', // sold by Amazon
     ],
-    trustedMerchants: [
-        'Amazon',
-        'TechPoint1111'
-    ]
+    trustedMerchants: parseTrustedMerchants()
 }
 
 export default config

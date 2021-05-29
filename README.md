@@ -41,18 +41,13 @@ When all above criteria are met, buy action will be performed automatically usin
     AMAZON_LOCALE=en-GB
     ```
 
+    You also can configure trusted merchant name by adding comma separated values `AMAZON_TRUSTED_MERCHANTS` to the `.env` file, for example:
+
+    ```env
+    AMAZON_TRUSTED_MERCHANTS=Amazon,Apple
+    ```
+
     See [config](./src/config.mjs) for complete reference of available configuration like Amazon site to use, locale, and currency
 
 - Run `npm install`
 - Run the Selenium code using `npm run start`
-
-You also can configure trusted merchant name by modifying [config](./src/config.mjs) file, for example:
-
-```js
-    trustedMerchants: [
-        'Amazon',
-        'Other Merchant',
-        'Another Merchant',
-        'Test '
-    ]
-```
