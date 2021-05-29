@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-dotenv.config({ debug: true })
+dotenv.config()
 
 const env = process.env
 
@@ -19,14 +19,7 @@ const config = {
     currency: env.AMAZON_CURRENCY ?? '£',
     username: env.AMAZON_USERNAME,
     password: env.AMAZON_PASSWORD,
-    amazonIds: [
-        'B08HM4V2DH', // out of stock
-        'B092CYHPDJ', // seller not by Amazon
-        'B08LTKLG5K', // not qualified to buy
-        'B078X22YBR', // sold by Amazon
-        'B081FW6TPQ', // sold by Amazon, too expensive
-        'B01MAZ357B', // not deliverable
-    ],
+    amazonIds: parseCommaSeparatedValues(env.AMAZON_ITEMS_TO_BUY, ''),
     trustedMerchants: parseCommaSeparatedValues(env.AMAZON_TRUSTED_MERCHANTS, 'Amazon')
 }
 

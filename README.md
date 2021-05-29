@@ -29,6 +29,7 @@ When all above criteria are met, buy action will be performed automatically usin
     AMAZON_SITE=https://www.amazon.co.uk
     AMAZON_CURRENCY=£
     AMAZON_LOCALE=en-GB
+    AMAZON_ITEMS_TO_BUY=B07PJV3JPR,B015GW0Y9I,B08X3Q664Q
     ```
 
     or for example for Amazon Germany
@@ -39,6 +40,7 @@ When all above criteria are met, buy action will be performed automatically usin
     AMAZON_SITE=https://www.amazon.de
     AMAZON_CURRENCY=€
     AMAZON_LOCALE=en-GB
+    AMAZON_ITEMS_TO_BUY=B07PJV3JPR,B015GW0Y9I,B08X3Q664Q
     ```
 
     You also can configure trusted merchant name by adding comma separated values `AMAZON_TRUSTED_MERCHANTS` to the `.env` file, for example:
