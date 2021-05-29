@@ -6,7 +6,7 @@ Quick and dirty approach to use Selenium to browse Amazon product by their Amazo
 - Sold by Amazon
 - Price is within range
 
-When all above criteria are met, buy action will be performed automatically.
+When all above criteria are met, buy action will be performed automatically using configured account.
 
 ## To do
 
@@ -20,17 +20,28 @@ When all above criteria are met, buy action will be performed automatically.
 
 - Clone this repository
 - Install latest [Node LTS](https://nodejs.org/en/)
-- Run `npm install`
-- Create new `.env` file
-- Populate the following in `.env` file
+- Create new `.env` file inside checkout dir, for example `~/path/to/checkout/dir/.env`
+- Populate the new `.env` file with following values
 
     ```env
     AMAZON_USERNAME=your@email.com
     AMAZON_PASSWORD=YourPassword
     AMAZON_SITE=https://www.amazon.co.uk
+    AMAZON_CURRENCY=£
+    AMAZON_LOCALE=en-GB
+    ```
+
+    or for example for Amazon Germany
+
+    ```env
+    AMAZON_USERNAME=your@email.com
+    AMAZON_PASSWORD=YourPassword
+    AMAZON_SITE=https://www.amazon.de
     AMAZON_CURRENCY=€
+    AMAZON_LOCALE=en-GB
     ```
 
     See [config](./src/config.mjs) for complete reference of available configuration like Amazon site to use, locale, and currency
 
+- Run `npm install`
 - Run the Selenium code using `npm run start`
