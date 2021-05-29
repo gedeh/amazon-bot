@@ -22,6 +22,11 @@ export default class AmazonProductPage {
             () => this.driver.executeScript('return document.readyState').then(
                 async state => state === 'complete'), this.config.timeout)
         await this.driver.wait(until.elementsLocated(By.css('div[data-feature-name="desktop_buybox"]')), this.config.timeout)
+        await this.driver.wait(until.elementsLocated(By.css('span#productTitle')), this.config.timeout)
+    }
+
+    async title() {
+        return await this.driver.findElement(By.css('span#productTitle')).getText()
     }
 
     async isOutOfStock() {

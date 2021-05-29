@@ -28,16 +28,17 @@ const shuffle = array => {
       const productPage = new AmazonProductPage(driver, config, amazonId)
       await productPage.open()
       const isOutOfStock = await productPage.isOutOfStock()
+      const title = await productPage.title()
       if (!isOutOfStock) {
         const isQualifiedToBuy = await productPage.isQualifiedToBuy()
         if (isQualifiedToBuy) {
           const price = await productPage.price()
           const merchant = await productPage.merchantName()
-          console.info(`> Product ${amazonId}: ${config.currency}${price} sold by ${merchant}`)
+          console.info(`> Product ${amazonId} - ${title}: ${config.currency}${price} is sold by ${merchant}`)
         }
-        else console.warn(`> Product ${amazonId} is not qualified to buy`)
+        else console.warn(`> Product ${amazonId} - ${title}: Is not qualified to buy`)
       }
-      else console.warn(`> Product ${amazonId} is out of stock`)
+      else console.warn(`> Product ${amazonId} - ${title}: Is out of stock`)
     }
   } finally {
     const stdin = process.openStdin()
