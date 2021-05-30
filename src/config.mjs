@@ -10,7 +10,9 @@ const parseCommaSeparatedValues = (values, defaults = '') => {
     return parsed
 }
 
-if (!env.AMAZON_USERNAME || !env.AMAZON_PASSWORD) throw new Error('Configure environment variable AMAZON_USERNAME and AMAZON_PASSWORD')
+if (!env.AMAZON_USERNAME) throw new Error("Configure environment variable AMAZON_USERNAME with your Amazon email")
+if (!env.AMAZON_PASSWORD) throw new Error("Configure environment variable AMAZON_PASSWORD with your Amazon password")
+if (!env.AMAZON_ITEMS_TO_BUY) throw new Error('Configure environment variable AMAZON_ITEMS_TO_BUY with comma separated ASIN')
 
 const mainMerchant = env.AMAZON_MAIN_MERCHANT ?? 'Amazon'
 const trustedMerchants = parseCommaSeparatedValues(env.AMAZON_TRUSTED_MERCHANTS, mainMerchant)
