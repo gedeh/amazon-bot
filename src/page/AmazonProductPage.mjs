@@ -1,4 +1,5 @@
-import { By, until } from 'selenium-webdriver'
+import { By, until, ThenableWebDriver } from 'selenium-webdriver'
+import config from '../config.mjs'
 
 const getSeparator = (locale, separatorType) => {
     const numberWithGroupAndDecimalSeparator = 1000.1;
@@ -8,8 +9,19 @@ const getSeparator = (locale, separatorType) => {
         .value;
 }
 
+const unformatPrice = (locale, currencySymbol, price) => {
+    const decimal = getSeparator(locale, 'decimal')
+    const group = getSeparator(locale, 'group')
+    return price.replace(group, '').replace(decimal, '.').replace(currencySymbol, '')
+}
+
 export default class AmazonProductPage {
 
+    /**
+     * @param {ThenableWebDriver} driver
+     * @param {config} config
+     * @param {String} amazonId
+     */
     constructor(driver, config, amazonId) {
         this.driver = driver
         this.config = config
@@ -80,9 +92,8 @@ export default class AmazonProductPage {
         try {
             const price = await this.driver.findElement(By.css('span.header-price')).getText().catch(
                 () => this.driver.findElement(By.css('div[data-feature-name="priceInsideBuyBox"] span#price_inside_buybox')).getText())
-            const decimal = getSeparator(this.config.locale, 'decimal')
-            const group = getSeparator(this.config.locale, 'group')
-            return price.replace(group, '').replace(decimal, '.').replace(this.config.currency, '')
+            const { locale, currency } = this.config
+            return unformatPrice(locale, currency, price)
         }
         catch (e) {
             return 0
@@ -106,5 +117,32 @@ export default class AmazonProductPage {
         catch (e) {
             return ""
         }
+    }
+
+    async performBuy() {
+        try {
+
+        }
+        catch {
+            return { success: false }
+        }
+        const buyNowButton = await this.driver.findElement(By.css('div#desktop_qualifiedBuyBox div#buyNow input[type="submit"]#buy-now-button'))
+        await buyNowButton.click()
+
+        await this.driver.wait(until.elementsLocated(By.css('div.a-popover-modal div#turbo-checkout-modal-header')), this.config.timeout)
+        await this.driver.wait(until.elementsLocated(By.css('iframe#turbo-checkout-iframe')), this.config.timeout)
+
+        const buyNowDialog = await this.driver.findElement(By.css('iframe#turbo-checkout-iframe'))
+        await this.driver.switchTo().frame(buyNowDialog)
+        await this.driver.wait(until.elementsLocated(By.css('div[cel_widget_id="turbo-cel-ship-panel"]')), this.config.timeout)
+
+        const address = await this.driver.findElement(By.css('div[cel_widget_id="turbo-cel-address-panel"] div.aok-nowrap.a-col-right')).getText()
+        const paymentMethod = await this.driver.findElement(By.css('div[cel_widget_id="turbo-cel-pay-panel"] div.aok-nowrap.a-col-right')).getText()
+        const totalPrice = await this.driver.findElement(By.css('div[cel_widget_id="turbo-cel-price-panel"] div.aok-nowrap.a-col-right')).getText()
+
+        await this.driver.findElement(By.css('form#place-order-form input[type="submit"][id="turbo-checkout-pyo-button"]')).click()
+
+        const { locale, currency } = this.config
+        return { address, paymentMethod, totalPrice: unformatPrice(locale, currency, totalPrice) }
     }
 }

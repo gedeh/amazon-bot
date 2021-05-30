@@ -15,14 +15,14 @@ const shuffle = array => {
 
 const shouldBuy = opts => {
   const { price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable } = opts
-  if (isOutOfStock) return { decision: false, message: 'its out of stock' }
-  if (!isQualifiedToBuy) return { decision: false, message: 'account is not qualified to buy' }
-  if (!isDeliverable) return { decision: false, message: 'its not deliverable to main address' }
+  if (isOutOfStock) return { success: false, message: 'its out of stock' }
+  if (!isQualifiedToBuy) return { success: false, message: 'account is not qualified to buy' }
+  if (!isDeliverable) return { success: false, message: 'its not deliverable to main address' }
 
-  if (!config.trustedMerchants.includes(merchant)) return { decision: false, message: 'its not sold by trusted merchant(s)' }
-  if (price > config.maxPrice) return { decision: false, message: 'its too expensive' }
+  if (!config.trustedMerchants.includes(merchant)) return { success: false, message: 'its not sold by trusted merchant(s)' }
+  if (price > config.maxPrice) return { success: false, message: 'its too expensive' }
 
-  return { decision: true }
+  return { success: true }
 }
 
 const describe = opts => {
@@ -65,10 +65,18 @@ const describe = opts => {
       const opts = { amazonId, title, price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable }
 
       logger.info(describe(opts))
+      const { success: shouldBuyIt, message } = shouldBuy(opts)
 
-      const { decision, message } = shouldBuy(opts)
+      if (shouldBuyIt) {
+        logger.info(`Product ${amazonId} - ${title}: Should buy it`)
 
-      if (decision) logger.info(`Product ${amazonId} - ${title}: Should buy it`)
+        const { success: bought, address, paymentMethod, totalPrice } = await productPage.performBuy()
+        if (bought) logger.info(
+`Product ${amazonId} is bought with details:
+  Shipping address: ${address.replace('\n', '. ')}
+  Payment method: ${paymentMethod.replace('\n', '. ')}
+  Total price: ${totalPrice}`)
+      }
       else logger.warn(`Product ${amazonId} - ${title}: Do not buy it, ${message}`)
     }
   } finally {
