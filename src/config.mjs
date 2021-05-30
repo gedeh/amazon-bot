@@ -5,10 +5,15 @@ const env = process.env
 
 const parseCommaSeparatedValues = (values, defaults = '') => {
     const merchants = values ?? defaults
-    return merchants.split(',').map(e => e.trim())
+    const parsed = merchants.split(',').map(e => e.trim())
+    if (defaults !== '') parsed.push(defaults)
+    return parsed
 }
 
 if (!env.AMAZON_USERNAME || !env.AMAZON_PASSWORD) throw new Error('Configure environment variable AMAZON_USERNAME and AMAZON_PASSWORD')
+
+const mainMerchant = env.AMAZON_MAIN_MERCHANT ?? 'Amazon'
+const trustedMerchants = parseCommaSeparatedValues(env.AMAZON_TRUSTED_MERCHANTS, mainMerchant)
 
 const config = {
     timeout: env.TIMEOUT ?? 10000,
@@ -19,9 +24,10 @@ const config = {
     currency: env.AMAZON_CURRENCY ?? '£',
     username: env.AMAZON_USERNAME,
     password: env.AMAZON_PASSWORD,
-    doBuy: env.AMAZON_PERFORM_BUY ?? true,
+    doBuy: (env.AMAZON_PERFORM_BUY ?? 'true') === 'true',
     amazonIds: parseCommaSeparatedValues(env.AMAZON_ITEMS_TO_BUY, ''),
-    trustedMerchants: parseCommaSeparatedValues(env.AMAZON_TRUSTED_MERCHANTS, 'Amazon')
+    mainMerchant,
+    trustedMerchants
 }
 
 export default config

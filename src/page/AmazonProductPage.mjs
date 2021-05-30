@@ -86,7 +86,7 @@ export default class AmazonProductPage {
     async isByAmazon() {
         try {
             const merchantName = await this.driver.findElement(By.css('div#merchant-info')).getText()
-            return merchantName.toLowerCase() === 'dispatched from and sold by amazon.'
+            return merchantName.endsWith(`${config.mainMerchant}.`)
         }
         catch (e) {
             logger.error(`Unable to find merchant name`, e)
@@ -119,7 +119,7 @@ export default class AmazonProductPage {
     async merchantName() {
         try {
             const name = await this.merchantLinkedName()
-            return name === "" ? ( await this.isByAmazon() ? 'Amazon' : 'Unknown' ) : name
+            return name === "" ? ( await this.isByAmazon() ? config.mainMerchant : 'Unknown' ) : name
         }
         catch (e) {
             logger.error(`Unable to find merchant name`, e)
