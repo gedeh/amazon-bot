@@ -64,6 +64,7 @@ const sleep = ms => {
       logger.info(`Opening page of product ${amazonId}`)
       const productPage = new AmazonProductPage(driver, config, amazonId)
       const available = await productPage.open()
+
       if (!available) {
         logger.warn(`Product ${amazonId} is not available`)
         continue
@@ -82,23 +83,28 @@ const sleep = ms => {
 
       if (shouldBuyIt) {
         logger.info(`Product ${amazonId}: Should buy it`)
-        if (config.doBuy) {
-          const { success: bought, address, shipping, paymentMethod, totalPrice, error } = await productPage.performBuy()
-          if (bought) {
-            const details = { amazonId, address, shipping, paymentMethod, totalPrice }
-            logPurchase(details)
-          }
-          else logger.error(`Something wrong when performing Buy Now action in Amazon`, error)
+
+        if (!config.doBuy) {
+          logger.info('Buy Now toggle is disabled, will not perform automatic buy')
+          continue
         }
+
+        const { success: bought, address, shipping, paymentMethod, totalPrice, error } = await productPage.performBuy()
+        if (bought) {
+          const details = { amazonId, address, shipping, paymentMethod, totalPrice }
+          logPurchase(details)
+        }
+        else logger.error(`Something wrong when performing Buy Now action in Amazon`, error)
       }
       else logger.warn(`Product ${amazonId} - ${title}: Do not buy it, ${message}`)
     }
   }
   finally {
-    const sleepFor = Math.floor(Math.random() * 60) + 45
+    const sleepFor = Math.floor(Math.random() * 30) + 30
     logger.info(`Sleep for ${sleepFor} second(s) before exit...`)
-    await sleep(sleepFor + 1000)
+    await sleep(sleepFor * 1000)
 
     driver.quit()
+    logger.info(`Exit now`)
   }
 })()
