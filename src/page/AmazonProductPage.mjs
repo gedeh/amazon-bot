@@ -137,6 +137,7 @@ export default class AmazonProductPage {
 
             await this.driver.findElement(By.css('form#place-order-form input[type="submit"][id="turbo-checkout-pyo-button"]')).click()
 
+            await this.driver.switchTo().parentFrame()
             await this.driver.wait(until.elementsLocated(By.css('div[id="checkoutpage"][pagename="thankyoupage"]')), this.config.timeout)
             const shipping = await this.driver.findElement(By.css('div[id="widget-purchaseSummary"] div[cel_widget_id="typ-shipmentText-0"]')).getText()
 
