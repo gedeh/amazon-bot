@@ -34,6 +34,15 @@ const describe = opts => {
   return `Product ${amazonId} - ${title}: Price ${config.currency}${price} is sold by ${merchant}`
 }
 
+const logPurchase = details => {
+  logger.info(
+`Product ${details.amazonId} is bought with details:
+  Shipping address: ${details.address.replace('\n', '. ')}
+  Payment method: ${details.paymentMethod.replace('\n', '. ')}
+  Total price: ${details.totalPrice}
+  Confirmed shipping address: ${details.shipping.replace('\n', '. ')}`)
+}
+
 (async function example() {
   const driver = await new Builder().forBrowser('chrome').build();
 
@@ -68,20 +77,19 @@ const describe = opts => {
       const { success: shouldBuyIt, message } = shouldBuy(opts)
 
       if (shouldBuyIt) {
-        logger.info(`Product ${amazonId} - ${title}: Should buy it`)
-
+        logger.info(`Product ${amazonId}: Should buy it`)
         const { success: bought, address, shipping, paymentMethod, totalPrice, error } = await productPage.performBuy()
-        if (bought) logger.info(
-`Product ${amazonId} is bought with details:
-  Shipping address: ${address.replace('\n', '. ')}
-  Payment method: ${paymentMethod.replace('\n', '. ')}
-  Total price: ${totalPrice}
-  Confirmed shipping address: ${shipping.replace('\n', '. ')}`)
-        else logger.error(`Something wrong when buying`, error)
+
+        if (bought) {
+          const details = { amazonId, address, shipping, paymentMethod, totalPrice }
+          logPurchase(details)
+        }
+        else logger.error(`Something wrong when performing Buy Now action in Amazon`, error)
       }
       else logger.warn(`Product ${amazonId} - ${title}: Do not buy it, ${message}`)
     }
-  } finally {
+  }
+  finally {
     const stdin = process.openStdin()
     process.stdout.write('Press enter when complete...\n')
     stdin.addListener('data', () => {
