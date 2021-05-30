@@ -13,7 +13,7 @@ When all above criteria are met, buy action will be performed automatically usin
 - [x] Login to Amazon
 - [x] Browse product page
 - [x] Buy item
-- [ ] Verify purchase
+- [ ] Verify purchase is successful
 - [ ] Keep loop in randomized time until an item is bought
 
 ## How to run
