@@ -49,7 +49,9 @@ When all above criteria are met, buy action will be performed automatically usin
     AMAZON_TRUSTED_MERCHANTS=Amazon,Amazon US
     ```
 
-    By default, it only trusts **Amazon** if the value is empty. See [config](./src/config.mjs) for complete reference of available configuration like Amazon site to use, default locale, and default currency.
+    By default, it will only trust value specified in `AMAZON_MAIN_MERCHANT` if `AMAZON_TRUSTED_MERCHANTS` value is empty and fallback to **Amazon** if both are empty.
+
+    See [config](./src/config.mjs) for complete reference of available configuration like Amazon site to use, default locale, and default currency.
 
 - Run `npm install`
 - Run the Selenium code using `npm run start`
