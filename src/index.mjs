@@ -70,12 +70,14 @@ const describe = opts => {
       if (shouldBuyIt) {
         logger.info(`Product ${amazonId} - ${title}: Should buy it`)
 
-        const { success: bought, address, paymentMethod, totalPrice } = await productPage.performBuy()
+        const { success: bought, address, shipping, paymentMethod, totalPrice, error } = await productPage.performBuy()
         if (bought) logger.info(
 `Product ${amazonId} is bought with details:
   Shipping address: ${address.replace('\n', '. ')}
   Payment method: ${paymentMethod.replace('\n', '. ')}
-  Total price: ${totalPrice}`)
+  Total price: ${totalPrice}
+  Confirmed shipping address: ${shipping.replace('\n', '. ')}`)
+        else logger.error(`Something wrong when buying`, error)
       }
       else logger.warn(`Product ${amazonId} - ${title}: Do not buy it, ${message}`)
     }
