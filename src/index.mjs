@@ -43,6 +43,10 @@ const logPurchase = details => {
   Confirmed shipping address: ${details.shipping.replace('\n', '. ')}`)
 }
 
+const sleep = ms => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 (async function example() {
   const driver = await new Builder().forBrowser('chrome').build();
 
@@ -78,23 +82,23 @@ const logPurchase = details => {
 
       if (shouldBuyIt) {
         logger.info(`Product ${amazonId}: Should buy it`)
-        const { success: bought, address, shipping, paymentMethod, totalPrice, error } = await productPage.performBuy()
-
-        if (bought) {
-          const details = { amazonId, address, shipping, paymentMethod, totalPrice }
-          logPurchase(details)
+        if (config.doBuy) {
+          const { success: bought, address, shipping, paymentMethod, totalPrice, error } = await productPage.performBuy()
+          if (bought) {
+            const details = { amazonId, address, shipping, paymentMethod, totalPrice }
+            logPurchase(details)
+          }
+          else logger.error(`Something wrong when performing Buy Now action in Amazon`, error)
         }
-        else logger.error(`Something wrong when performing Buy Now action in Amazon`, error)
       }
       else logger.warn(`Product ${amazonId} - ${title}: Do not buy it, ${message}`)
     }
   }
   finally {
-    const stdin = process.openStdin()
-    process.stdout.write('Press enter when complete...\n')
-    stdin.addListener('data', () => {
-      stdin.pause()
-      driver.quit()
-    })
+    const sleepFor = Math.floor(Math.random() * 60) + 45
+    logger.info(`Sleep for ${sleepFor} second(s) before exit...`)
+    await sleep(sleepFor + 1000)
+
+    driver.quit()
   }
 })()

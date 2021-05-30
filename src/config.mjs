@@ -19,6 +19,7 @@ const config = {
     currency: env.AMAZON_CURRENCY ?? '£',
     username: env.AMAZON_USERNAME,
     password: env.AMAZON_PASSWORD,
+    doBuy: env.AMAZON_PERFORM_BUY ?? true,
     amazonIds: parseCommaSeparatedValues(env.AMAZON_ITEMS_TO_BUY, ''),
     trustedMerchants: parseCommaSeparatedValues(env.AMAZON_TRUSTED_MERCHANTS, 'Amazon')
 }
