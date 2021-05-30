@@ -12,8 +12,8 @@ When all above criteria are met, buy action will be performed automatically usin
 
 - [x] Login to Amazon
 - [x] Browse product page
-- [ ] Add to basket
-- [ ] Buy item
+- [x] Buy item
+- [ ] Verify purchase
 - [ ] Keep loop in randomized time until an item is bought
 
 ## How to run
@@ -46,10 +46,10 @@ When all above criteria are met, buy action will be performed automatically usin
     You also can configure trusted merchant name by adding comma separated values `AMAZON_TRUSTED_MERCHANTS` to the `.env` file, for example:
 
     ```env
-    AMAZON_TRUSTED_MERCHANTS=Amazon,Apple
+    AMAZON_TRUSTED_MERCHANTS=Amazon,Amazon US
     ```
 
-    See [config](./src/config.mjs) for complete reference of available configuration like Amazon site to use, locale, and currency
+    By default, it only trusts **Amazon** if the value is empty. See [config](./src/config.mjs) for complete reference of available configuration like Amazon site to use, default locale, and default currency.
 
 - Run `npm install`
 - Run the Selenium code using `npm run start`
