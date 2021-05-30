@@ -97,10 +97,7 @@ export default class AmazonProductPage {
     async price() {
         try {
             const price = await this.driver.findElement(By.css('div[data-cel-widget="desktop_unifiedPrice"] span#priceblock_ourprice')).getText().catch(
-                () => {
-                    this.driver.wait(until.elementLocated(By.css('div[data-feature-name="priceInsideBuyBox"]')))
-                    return this.driver.findElement(By.css('div[data-feature-name="priceInsideBuyBox"] span#price_inside_buybox')).getText()
-                })
+                async () => await this.driver.findElement(By.css('div[data-feature-name="priceInsideBuyBox"] span#price_inside_buybox')).getText())
             const { locale, currency } = this.config
             return unformatPrice(locale, currency, price)
         }
