@@ -1,18 +1,24 @@
 import { By, until, ThenableWebDriver } from 'selenium-webdriver'
 import config from '../config.mjs'
+import logger from '../logger.mjs'
 
 const getSeparator = (locale, separatorType) => {
-    const numberWithGroupAndDecimalSeparator = 1000.1;
+    const numberWithGroupAndDecimalSeparator = 10000.1;
     return Intl.NumberFormat(locale)
         .formatToParts(numberWithGroupAndDecimalSeparator)
         .find(part => part.type === separatorType)
         .value;
 }
 
-const unformatPrice = (locale, currencySymbol, price) => {
+const unformatPrice = (locale, currencySymbol, formatted) => {
+    const thousand = getSeparator(locale, 'group')
     const decimal = getSeparator(locale, 'decimal')
-    const group = getSeparator(locale, 'group')
-    return price.replace(group, '').replace(decimal, '.').replace(currencySymbol, '')
+    const price = formatted
+        .replace(currencySymbol, '')
+        .replace(' ', '')
+        .replace(new RegExp('\\' + thousand, 'g'), '')
+        .replace(new RegExp('\\' + decimal, 'g'), '.')
+    return price
 }
 
 export default class AmazonProductPage {
@@ -83,19 +89,23 @@ export default class AmazonProductPage {
             return merchantName.toLowerCase() === 'dispatched from and sold by amazon.'
         }
         catch (e) {
-            console.error(e)
+            logger.error(`Unable to find merchant name`, e)
             return false
         }
     }
 
     async price() {
         try {
-            const price = await this.driver.findElement(By.css('span.header-price')).getText().catch(
-                () => this.driver.findElement(By.css('div[data-feature-name="priceInsideBuyBox"] span#price_inside_buybox')).getText())
+            const price = await this.driver.findElement(By.css('div[data-cel-widget="desktop_unifiedPrice"] span#priceblock_ourprice')).getText().catch(
+                () => {
+                    this.driver.wait(until.elementLocated(By.css('div[data-feature-name="priceInsideBuyBox"]')))
+                    return this.driver.findElement(By.css('div[data-feature-name="priceInsideBuyBox"] span#price_inside_buybox')).getText()
+                })
             const { locale, currency } = this.config
             return unformatPrice(locale, currency, price)
         }
         catch (e) {
+            logger.error(`Unable to find product's price`, e)
             return 0
         }
     }
@@ -115,6 +125,7 @@ export default class AmazonProductPage {
             return name === "" ? ( await this.isByAmazon() ? 'Amazon' : 'Unknown' ) : name
         }
         catch (e) {
+            logger.error(`Unable to find merchant name`, e)
             return ""
         }
     }
@@ -145,6 +156,7 @@ export default class AmazonProductPage {
             return { success: true, address, shipping, paymentMethod, totalPrice: unformatPrice(locale, currency, totalPrice) }
         }
         catch (e) {
+            logger.error(`Unable to perform buy now`, e)
             return { success: false, error: e }
         }
     }
