@@ -12,8 +12,8 @@ export default class AmazonMainPage {
         await this.driver.findElement(By.css('header#navbar-main a[data-nav-role="signin"]')).click()
         await this.driver.wait(
             () => this.driver.executeScript('return document.readyState').then(
-                async state => state === 'complete'), this.config.timeout)
-        await this.driver.wait(until.elementLocated(By.css('form[name="signIn"] input[type="email"]#ap_email')), this.config.timeout)
+                async state => state === 'complete'), this.config.timeout.pageLoad)
+        await this.driver.wait(until.elementLocated(By.css('form[name="signIn"] input[type="email"]#ap_email')), this.config.timeout.elementLocated)
         return new AmazonSignInPage(this.driver, this.config)
     }
 
@@ -25,6 +25,6 @@ export default class AmazonMainPage {
         const goButton = await this.driver.findElement(By.css('header#navbar-main form#nav-search-bar-form div.nav-search-submit input#nav-search-submit-button'))
         await goButton.click()
 
-        await this.driver.wait(until.elementsLocated(By.css('span[data-component-type="s-search-results"]')), this.config.timeout)
+        await this.driver.wait(until.elementsLocated(By.css('span[data-component-type="s-search-results"]')), this.config.timeout.pageLoad)
     }
 }

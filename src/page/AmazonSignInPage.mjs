@@ -12,7 +12,7 @@ export default class AmazonSignInPage {
         await this.driver.findElement(emailInput).sendKeys(this.config.username)
 
         await this.driver.findElement(By.css('form[name="signIn"] input#continue')).click()
-        await this.driver.wait(until.elementsLocated(By.css('div#authportal-center-section span + a#ap_change_login_claim')), this.config.timeout)
+        await this.driver.wait(until.elementsLocated(By.css('div#authportal-center-section span + a#ap_change_login_claim')), this.config.timeout.elementLocated)
     }
 
     async populatePasswordThenSignIn() {
@@ -22,6 +22,6 @@ export default class AmazonSignInPage {
 
         await this.driver.findElement(By.css('form[name="signIn"] input[type="checkbox"]')).click()
         await this.driver.findElement(By.css('form[name="signIn"] input#signInSubmit')).click()
-        await this.driver.wait(until.elementsLocated(By.css('header#navbar-main a#nav-logo-sprites')), this.config.timeout)
+        await this.driver.wait(until.elementsLocated(By.css('header#navbar-main a#nav-logo-sprites')), this.config.timeout.pageLoad)
     }
 }

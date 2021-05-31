@@ -18,15 +18,25 @@ const mainMerchant = env.AMAZON_MAIN_MERCHANT ?? 'Amazon'
 const trustedMerchants = parseCommaSeparatedValues(env.AMAZON_TRUSTED_MERCHANTS, mainMerchant)
 
 const config = {
-    timeout: env.TIMEOUT ?? 10000,
+    timeout: {
+        pageLoad: (env.TIMEOUT_PAGE_LOAD ?? 10) * 1000,
+        elementLocated: (env.TIMEOUT_ELEMENT_LOCATED ?? 5) * 1000
+    },
     maxPrice: env.MAXIMUM_PRICE ?? 2000,
+    interval: {
+        min: env.CHECK_INTERVAL_MIN ?? 10,
+        max: env.CHECK_INTERVAL_MAX ?? 30
+    },
 
     site: env.AMAZON_SITE ?? 'https://www.amazon.co.uk',
     locale: env.AMAZON_LOCALE ?? 'en-GB',
     currency: env.AMAZON_CURRENCY ?? '£',
+
     username: env.AMAZON_USERNAME,
     password: env.AMAZON_PASSWORD,
+
     doBuy: (env.AMAZON_PERFORM_BUY ?? 'true') === 'true',
+
     amazonIds: parseCommaSeparatedValues(env.AMAZON_ITEMS_TO_BUY, ''),
     mainMerchant,
     trustedMerchants

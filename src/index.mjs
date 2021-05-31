@@ -47,64 +47,88 @@ const sleep = ms => {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-(async function example() {
-  const driver = await new Builder().forBrowser('chrome').build();
-
+const signInToAmazon = async driver => {
   try {
-    logger.info(`Opening Amazon main page ${config.site}`)
+    logger.info(`Opening Amazon main page`, { metadata: { site: config.site }})
     const mainPage = new AmazonMainPage(driver, config)
     const signInPage = await mainPage.openSignInPage()
 
-    logger.info(`Sign in to Amazon`)
+    logger.info(`Sign in to Amazon`, { metadata: { site: config.site }})
     await signInPage.populateEmailThenContinue()
     await signInPage.populatePasswordThenSignIn()
+  }
+  catch (e) {
+    logger.error(`Unable to sign in to Amazon website: ${config.site}`)
+  }
+}
 
-    const randomizedIds = shuffle(config.amazonIds)
-    for (const amazonId of randomizedIds) {
-      logger.info(`Opening page of product ${amazonId}`)
-      const productPage = new AmazonProductPage(driver, config, amazonId)
-      const available = await productPage.open()
+const openProductAndTryBuy = async (driver, amazonId) => {
+  try {
+    logger.info(`Opening page of product ${amazonId}`)
+    const productPage = new AmazonProductPage(driver, config, amazonId)
+    const available = await productPage.open()
 
-      if (!available) {
-        logger.warn(`Product ${amazonId} is not available`)
-        continue
-      }
-
-      const title = await productPage.title()
-      const price = await productPage.price()
-      const merchant = await productPage.merchantName()
-      const isOutOfStock = await productPage.isOutOfStock()
-      const isQualifiedToBuy = await productPage.isQualifiedToBuy()
-      const isDeliverable = await productPage.isDeliverable()
-      const opts = { amazonId, title, price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable }
-
-      logger.info(describe(opts))
-      const { success: shouldBuyIt, message } = shouldBuy(opts)
-
-      if (shouldBuyIt) {
-        logger.info(`Product ${amazonId}: Should buy it`)
-
-        if (!config.doBuy) {
-          logger.info('Buy Now toggle is disabled, will not perform automatic buy')
-          continue
-        }
-
-        const { success: bought, address, shipping, paymentMethod, totalPrice, error } = await productPage.performBuy()
-        if (bought) {
-          const details = { amazonId, address, shipping, paymentMethod, totalPrice }
-          logPurchase(details)
-        }
-        else logger.error(`Something wrong when performing Buy Now action in Amazon`, error)
-      }
-      else logger.warn(`Product ${amazonId} - ${title}: Do not buy it, ${message}`)
+    if (!available) {
+      logger.warn(`Product ${amazonId} is not available`, { product: amazonId })
+      return false
     }
-  }
-  finally {
-    const sleepFor = Math.floor(Math.random() * 30) + 30
-    logger.info(`Sleep for ${sleepFor} second(s) before exit...`)
-    await sleep(sleepFor * 1000)
 
-    driver.quit()
-    logger.info(`Exit now`)
+    const title = await productPage.title()
+    const price = await productPage.price()
+    const merchant = await productPage.merchantName()
+    const isOutOfStock = await productPage.isOutOfStock()
+    const isQualifiedToBuy = await productPage.isQualifiedToBuy()
+    const isDeliverable = await productPage.isDeliverable()
+    const opts = { amazonId, title, price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable }
+
+    logger.info(describe(opts), { product: amazonId })
+    const { success: shouldBuyIt, message } = shouldBuy(opts)
+
+    if (!shouldBuyIt) {
+      logger.warn(`Product ${amazonId} - ${title}: Do not buy it, ${message}`, { product: amazonId })
+      return false
+    }
+
+    logger.info(`Product ${amazonId}: Should buy it`)
+    if (!config.doBuy) {
+      logger.warn('Buy Now toggle is disabled, will not perform automatic buy', { product: amazonId })
+      return false
+    }
+
+    const { success: bought, address, shipping, paymentMethod, totalPrice, error } = await productPage.performBuy()
+    if (!bought) {
+      logger.error(`Something wrong when performing Buy Now action in Amazon`, { product: amazonId }, error)
+      return false
+    }
+
+    const details = { amazonId, address, shipping, paymentMethod, totalPrice }
+    logPurchase(details)
+    return true
   }
+  catch {
+    logger.error(`Something wrong while scanning Amazon to buy product`, { product: amazonId }, e)
+    return false
+  }
+}
+
+(async function run() {
+  const driver = await new Builder().forBrowser('chrome').build();
+  await signInToAmazon(driver)
+
+  const { min, max } = config.interval
+  const randomizedIds = shuffle(config.amazonIds)
+  let productBought = false
+
+  while (!productBought) {
+    for (const amazonId of randomizedIds) {
+      productBought = await openProductAndTryBuy(driver, amazonId)
+    }
+
+    const sleepFor = Math.floor(Math.random() * (max-min)) + min
+    logger.info(`Sleep for ${sleepFor} second(s) before next run`)
+    await sleep(sleepFor * 1000)
+  }
+
+  driver.quit()
+  logger.info(`Exit now`)
 })()
