@@ -1,9 +1,9 @@
 import winston from 'winston'
 const { createLogger, format, transports } = winston
 const { combine, timestamp, printf } = format
-
-const logFormat = printf(({ level, message, timestamp }) => {
-  return `${timestamp} [${level}]: ${message}`;
+const printMetadata = metadata => metadata ? `[${JSON.stringify(metadata)}]` : ''
+const logFormat = printf(({ level, message, timestamp, metadata }) => {
+  return `${timestamp} [${level}]: ${message} ${printMetadata(metadata)}`;
 })
 
 const logger = createLogger({
@@ -15,7 +15,10 @@ const logger = createLogger({
     logFormat
   ),
   transports: [
-    new transports.Console()
+    new transports.Console({
+      format: logFormat,
+      handleExceptions: true
+    })
   ]
 })
 
