@@ -96,7 +96,7 @@ export default class AmazonProductPage {
 
     async price() {
         try {
-            const price = await this.driver.findElement(By.css('div[data-cel-widget="desktop_unifiedPrice"] span#priceblock_ourprice')).getText().catch(
+            const price = await this.driver.findElement(By.css('div[data-feature-name="desktop_unifiedPrice"] span#priceblock_ourprice')).getText().catch(
                 async () => await this.driver.findElement(By.css('div[data-feature-name="priceInsideBuyBox"] span#price_inside_buybox')).getText())
             const { locale, currency } = this.config
             return unformatPrice(locale, currency, price)
@@ -109,7 +109,7 @@ export default class AmazonProductPage {
 
     async merchantLinkedName() {
         try {
-            return await this.driver.findElement(By.css('div#merchant-info a#sellerProfileTriggerId')).getText()
+            return await this.driver.findElement(By.css('a#sellerProfileTriggerId')).getText()
         }
         catch (e) {
             logger.debug(`Unable to locate merchant name as link`, { metadata: { product: this.amazonId } })
