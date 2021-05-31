@@ -26,17 +26,17 @@ const shouldBuy = opts => {
 }
 
 const describe = opts => {
-  const { amazonId, title, price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable } = opts
-  if (isOutOfStock) return `Product ${amazonId} - ${title}: Is out of stock`
-  if (!isQualifiedToBuy) return `Product ${amazonId} - ${title}: Account is not qualified to buy`
-  if (!isDeliverable) return `Product ${amazonId} - ${title}: Cannot be shipped to selected delivery location`
+  const { price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable } = opts
+  if (isOutOfStock) return `Product is out of stock`
+  if (!isQualifiedToBuy) return `Account is not qualified to buy`
+  if (!isDeliverable) return `Product cannot be shipped to selected delivery location`
 
-  return `Product ${amazonId} - ${title}: Price ${config.currency}${price} is sold by ${merchant}`
+  return `Product price is ${config.currency}${price} and sold by ${merchant}`
 }
 
 const logPurchase = details => {
   logger.info(
-`Product ${details.amazonId} is bought with details:
+`Product is bought with details:
   Shipping address: ${details.address.replace('\n', '. ')}
   Payment method: ${details.paymentMethod.replace('\n', '. ')}
   Total price: ${details.totalPrice}
@@ -64,40 +64,42 @@ const signInToAmazon = async driver => {
 
 const openProductAndTryBuy = async (driver, amazonId) => {
   try {
-    logger.info(`Opening page of product ${amazonId}`, { metadata: { product: amazonId } })
+    const metadata = { metadata: { product: amazonId } }
+    logger.info(`Opening page of product`, metadata)
     const productPage = new AmazonProductPage(driver, config, amazonId)
     const available = await productPage.open()
 
     if (!available) {
-      logger.warn(`Product ${amazonId} is not available`, { metadata: { product: amazonId } })
+      logger.warn(`Product is not available`, metadata)
       return false
     }
 
     const title = await productPage.title()
+
     const price = await productPage.price()
     const merchant = await productPage.merchantName()
     const isOutOfStock = await productPage.isOutOfStock()
     const isQualifiedToBuy = await productPage.isQualifiedToBuy()
     const isDeliverable = await productPage.isDeliverable()
-    const opts = { amazonId, title, price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable }
+    const opts = { price, merchant, isOutOfStock, isQualifiedToBuy, isDeliverable }
 
-    logger.info(describe(opts), { metadata: { product: amazonId } })
+    logger.info(describe(opts), { metadata: { product: amazonId, title } })
     const { success: shouldBuyIt, message } = shouldBuy(opts)
 
     if (!shouldBuyIt) {
-      logger.warn(`Product ${amazonId} - ${title}: Do not buy it, ${message}`, { metadata: { product: amazonId } })
+      logger.warn(`Do not buy it, ${message}`, metadata)
       return false
     }
 
-    logger.info(`Product ${amazonId}: Should buy it`, { metadata: { product: amazonId } })
+    logger.info(`Should buy it`, metadata)
     if (!config.doBuy) {
-      logger.warn('Buy Now toggle is disabled, will not perform automatic buy', { metadata: { product: amazonId } })
+      logger.warn('Buy Now toggle is disabled, will not perform automatic buy', metadata)
       return false
     }
 
     const { success: bought, address, shipping, paymentMethod, totalPrice, error } = await productPage.performBuy()
     if (!bought) {
-      logger.error(`Something wrong when performing Buy Now action in Amazon`, error, { metadata: { product: amazonId } })
+      logger.error(`Something wrong when performing Buy Now action in Amazon`, error, metadata)
       return false
     }
 
@@ -106,7 +108,7 @@ const openProductAndTryBuy = async (driver, amazonId) => {
     return true
   }
   catch {
-    logger.error(`Something wrong while scanning Amazon to buy product`, e, { metadata: { product: amazonId } })
+    logger.error(`Something wrong while collecting details of the product`, e, metadata)
     return false
   }
 }
@@ -125,7 +127,7 @@ const openProductAndTryBuy = async (driver, amazonId) => {
     }
 
     const sleepFor = Math.floor(Math.random() * (max-min)) + min
-    logger.info(`Sleep for ${sleepFor} second(s) before next run`)
+    logger.info(`All products checked, sleep for ${sleepFor} second(s) before the next run`)
     await sleep(sleepFor * 1000)
   }
 

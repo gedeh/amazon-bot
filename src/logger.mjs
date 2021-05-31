@@ -3,7 +3,8 @@ const { createLogger, format, transports } = winston
 const { combine, timestamp, printf } = format
 const printMetadata = metadata => metadata ? `[${JSON.stringify(metadata)}]` : ''
 const logFormat = printf(({ level, message, timestamp, metadata }) => {
-  return `${timestamp} [${level}]: ${message} ${printMetadata(metadata)}`;
+  if (metadata && metadata.product) return `${timestamp} [${level}]: ${metadata.product} - ${message} ${printMetadata(metadata)}`;
+  return `${timestamp} [${level}]: ${message} ${printMetadata(metadata)}`
 })
 
 const logger = createLogger({
