@@ -18,6 +18,14 @@ const logger = createLogger({
     new transports.Console({
       format: logFormat,
       handleExceptions: true
+    }),
+    new transports.File({
+      filename: 'process.log',
+      format: combine(
+        timestamp(),
+        format.splat(),
+        format.uncolorize(),
+        logFormat)
     })
   ]
 })
