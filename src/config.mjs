@@ -10,6 +10,11 @@ const parseCommaSeparatedValues = (values, defaults = '') => {
     return parsed
 }
 
+const ensureInt = (value, defaults) => {
+    const parsed = parseInt(value, 10)
+    return isNaN(parsed) ? defaults : parsed
+}
+
 if (!env.AMAZON_USERNAME) throw new Error("Configure environment variable AMAZON_USERNAME with your Amazon email")
 if (!env.AMAZON_PASSWORD) throw new Error("Configure environment variable AMAZON_PASSWORD with your Amazon password")
 if (!env.AMAZON_ITEMS_TO_BUY) throw new Error('Configure environment variable AMAZON_ITEMS_TO_BUY with comma separated ASIN')
@@ -19,13 +24,13 @@ const trustedMerchants = parseCommaSeparatedValues(env.AMAZON_TRUSTED_MERCHANTS,
 
 const config = {
     timeout: {
-        pageLoad: (env.TIMEOUT_PAGE_LOAD ?? 10) * 1000,
-        elementLocated: (env.TIMEOUT_ELEMENT_LOCATED ?? 5) * 1000
+        pageLoad: ensureInt(env.TIMEOUT_PAGE_LOAD, 10) * 1000,
+        elementLocated: ensureInt(env.TIMEOUT_ELEMENT_LOCATED, 5) * 1000
     },
-    maxPrice: env.MAXIMUM_PRICE ?? 2000,
+    maxPrice: ensureInt(env.MAXIMUM_PRICE, 2000),
     interval: {
-        min: env.CHECK_INTERVAL_MIN ?? 10,
-        max: env.CHECK_INTERVAL_MAX ?? 30
+        min: ensureInt(env.CHECK_INTERVAL_MIN, 10),
+        max: ensureInt(env.CHECK_INTERVAL_MAX, 30)
     },
 
     site: env.AMAZON_SITE ?? 'https://www.amazon.co.uk',
